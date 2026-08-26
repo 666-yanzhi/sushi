@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "categories": [
+    {"id": "development", "name": "开发"},
+    {"id": "system", "name": "系统"},
+    {"id": "daily", "name": "日常"}
+  ],
+  "apps": [
+    {
+      "id": "terminal",
+      "name": "Windows Terminal",
+      "category_id": "development",
+      "target": "wt.exe",
+      "args": [],
+      "cwd": null
+    },
+    {
+      "id": "powershell",
+      "name": "PowerShell",
+      "category_id": "development",
+      "target": "powershell.exe",
+      "args": [],
+      "cwd": null
+    },
+    {
+      "id": "explorer",
+      "name": "文件资源管理器",
+      "category_id": "system",
+      "target": "explorer.exe",
+      "args": [],
+      "cwd": null
+    },
+    {
+      "id": "notepad",
+      "name": "记事本",
+      "category_id": "daily",
+      "target": "notepad.exe",
+      "args": [],
+      "cwd": null
+    },
+    {
+      "id": "calculator",
+      "name": "计算器",
+      "category_id": "daily",
+      "target": "calc.exe",
+      "args": [],
+      "cwd": null
+    }
+  ]
+}
