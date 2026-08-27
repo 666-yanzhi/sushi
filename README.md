@@ -1,64 +1,125 @@
-# Quick Launcher V1
+# 速拾
 
-一个 Windows 常驻式应用启动器原型：使用抹茶绿界面，通过 `Win + Alt + Space` 或右上角热角唤出，搜索或选择应用后立即启动并隐藏。
+> 一款为 Windows 设计的常驻式应用与网页启动器。按下快捷键、移动到热角，或点击托盘图标，即可搜索并打开常用内容。
 
-## 当前功能
+速拾把零散的桌面应用、快捷方式和常用网页放进一个可搜索、可分类的小面板中。它尽量不打扰：启动后驻留在系统托盘，打开目标后自动隐藏。
 
-- PySide6 无边框、置顶、抹茶绿启动面板
-- 系统托盘：显示启动器或安全退出
-- `Win + Alt + Space` 全局快捷键（Windows 原生 `RegisterHotKey`）
-- 所有显示器右上角 `8×8 px` 热角，停留约 250 ms 唤出；关闭后必须移出热区才能再次触发
-- 分类、实时搜索、`Esc` 隐藏、搜索框中 `Enter` 启动第一个结果
-- `.exe` 与 `.lnk` 启动；可为 `.exe` 传递参数和工作目录
-- 用户目录中的 JSON 配置与按需图标缓存
-- 单实例保护，避免多个托盘图标和热键竞争
-- 设置窗口：修改全局快捷键、开关右上角热角，保存后即时生效
-- 分类树：直接拖拽排序、一级/二级分类转换，并在保存失败时自动恢复
-- 设置窗口：在“启动与窗口 / 外观 / 分类”三栏中管理快捷键、热角、窗口行为、主题和分类
-- 热角可配置四个角落、区域大小与停留时间；可选记住窗口位置
-- 抹茶亮色与 VS Code 风格暗色主题，切换时平滑淡入淡出；图标大小与窗口透明度可在设置中实时预览
-- 热角设置弹窗会实时标出每个显示器上的触发区域
+## 功能一览
 
-## 运行
+- **随时唤出**：默认按 <kbd>Win</kbd> + <kbd>Alt</kbd> + <kbd>Space</kbd>；也可以用任意屏幕的鼠标热角或系统托盘唤出。
+- **快速查找**：按应用名称实时搜索，<kbd>Enter</kbd> 打开第一项，<kbd>Esc</kbd> 隐藏面板。
+- **管理应用与网页**：拖入 `.exe` 或 `.lnk` 快捷方式即可添加；右键可重命名、移动、删除或添加网页。网页会在后台尝试获取网站图标。
+- **清晰的分类**：支持一级、二级分类和拖拽排序；删除分类时，其中的应用会自动放入“未分类”，不会丢失。
+- **按习惯定制**：在设置中修改快捷键、热角位置与停留时间、窗口位置、图标大小、透明度、主题、失焦隐藏及开机自启动。
+- **可靠地常驻**：单实例保护避免重复运行；启动需要管理员权限的程序时，会在 Windows 要求时发起 UAC 授权。
 
-在 Windows 上使用 Python 3.14.4：
+## 使用
+
+### 直接运行发布版
+
+1. 从项目的 [Releases](../../releases) 下载最新的 Windows 压缩包并解压。
+2. 双击解压目录中的 `速拾.exe`。
+3. 首次运行后，使用默认快捷键 <kbd>Win</kbd> + <kbd>Alt</kbd> + <kbd>Space</kbd> 打开面板。
+4. 将应用的 `.exe` 或 `.lnk` 文件拖到面板中，选择分类后即可添加；也可右键面板空白处添加网页。
+
+程序关闭面板后不会退出，而是继续显示在系统托盘。右键托盘图标可重新打开速拾或安全退出。
+
+### 常用操作
+
+| 操作 | 方法 |
+| --- | --- |
+| 打开速拾 | <kbd>Win</kbd> + <kbd>Alt</kbd> + <kbd>Space</kbd>（默认），鼠标热角，或托盘图标 |
+| 搜索并启动 | 输入名称，按 <kbd>Enter</kbd> 启动首个结果 |
+| 隐藏面板 | 按 <kbd>Esc</kbd>、启动一个项目，或切换到其他窗口（默认） |
+| 添加桌面应用 | 将 `.exe` / `.lnk` 拖进面板 |
+| 添加网页 | 右键面板空白处或应用卡片，选择“添加网页” |
+| 编辑应用 | 右键应用卡片，可打开、重命名、移动或删除 |
+| 调整行为与外观 | 打开“设置”，保存后立即生效 |
+
+> 删除应用或分类只会移除速拾中的记录，不会删除电脑上的原始文件。热角默认位于每块显示器的右上角；在设置中可关闭或调整它。
+
+## 数据与配置
+
+速拾不会把个人配置写入安装目录。首次启动时，会在当前用户目录创建：
+
+```text
+%LOCALAPPDATA%\QuickLauncher\
+├── shortcuts.json   # 分类、应用和设置
+└── cache\icons\      # 应用与网页图标缓存
+```
+
+通常建议在程序的设置界面中修改选项。若需要批量维护，可先退出速拾，再编辑 `shortcuts.json`；下次启动会校验格式。项目内的 `quick_launcher/resources/default_shortcuts.json` 只是首次启动模板，修改它不会覆盖已有用户配置。
+
+一个应用条目的最小示例：
+
+```json
+{
+  "id": "vscode",
+  "name": "Visual Studio Code",
+  "category_id": "development",
+  "target": "C:\\Users\\name\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+  "args": [],
+  "cwd": null
+}
+```
+
+`target` 支持可执行文件名（如 `notepad.exe`）、绝对 `.exe` 路径、`.lnk` 快捷方式，以及 `http` / `https` 网页地址。`args` 用于传递启动参数，`cwd` 用于指定工作目录。
+
+## 从源码运行
+
+### 环境要求
+
+- Windows 10 / 11
+- Python `3.14.4`
+- [uv](https://docs.astral.sh/uv/)
 
 ```powershell
+git clone <你的仓库地址>
+cd sushi
 uv sync
 uv run python main.py
 ```
 
-首次启动会创建：`%LOCALAPPDATA%\QuickLauncher\shortcuts.json`。
-该文件是用户可编辑配置；不要编辑安装目录里的 `quick_launcher/resources/default_shortcuts.json`，它仅作为首次启动模板。
+也可以在完成同步后运行已注册的命令：
 
-## 配置示例
-
-```json
-{
-  "schema_version": 1,
-  "categories": [{"id": "development", "name": "开发"}],
-  "apps": [
-    {
-      "id": "vscode",
-      "name": "Visual Studio Code",
-      "category_id": "development",
-      "target": "C:\\Users\\name\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
-      "args": [],
-      "cwd": null
-    }
-  ]
-}
+```powershell
+uv run quick-launcher
 ```
 
-`target` 可以是可执行文件名（例如 `notepad.exe`）、绝对 `.exe` 路径，或 `.lnk` 快捷方式路径。应用仍通过 JSON 编辑；分类栏和启动方式可以在程序“设置”中修改并立即生效。
+全局快捷键、系统托盘、Windows 自启动和实际启动应用等能力依赖 Windows；在其他系统中仅适合运行部分非界面逻辑测试。
 
-## 验证
+## 测试与构建
 
-核心配置与搜索逻辑不依赖 Windows 或 GUI，可运行：
+运行测试时使用 Qt 的无界面平台：
 
 ```powershell
 $env:QT_QPA_PLATFORM = 'offscreen'
 uv run python -m unittest discover -s tests -v
 ```
 
-Windows 手工验收：确认背景不再为黑色、托盘存在、快捷键能唤出、热角在副屏也可用；检查点击其他应用时自动隐藏、记忆位置越界后仍会显示在可见区域、暗色主题对比度，以及分类拖拽、图标预览与不同窗口尺寸下的自动重排。
+生成 Windows 可执行发布目录：
+
+```powershell
+uv run pyinstaller 速拾.spec --noconfirm
+```
+
+构建产物默认位于 `dist\速拾\`；分发时请保留整个目录，不要只复制其中的 `速拾.exe`。
+
+## 项目结构
+
+```text
+quick_launcher/
+├── app.py              # 应用装配、托盘菜单和交互流程
+├── window.py           # 主启动面板
+├── settings.py         # 设置与分类编辑界面
+├── config.py           # 用户配置读写与校验
+├── launcher.py         # 应用、快捷方式和网页启动
+├── hotcorner.py        # 多显示器热角
+├── windows_hotkey.py   # Windows 全局快捷键
+└── resources/          # 默认配置和图标资源
+tests/                  # 配置、搜索、启动和界面行为测试
+```
+
+## 许可证
+
+本项目使用 [MIT License](LICENSE)。
