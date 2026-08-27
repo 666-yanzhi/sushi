@@ -19,3 +19,7 @@ class SearchTests(unittest.TestCase):
     def test_empty_search_keeps_selected_category(self) -> None:
         result = filter_apps(APPS, "daily", "")
         self.assertEqual([app.id for app in result], ["notepad"])
+
+    def test_parent_category_scope_includes_child_apps(self) -> None:
+        result = filter_apps(APPS, "dev", "", {"dev", "daily"})
+        self.assertEqual([app.id for app in result], ["code", "pycharm", "notepad"])
